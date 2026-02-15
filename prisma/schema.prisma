@@ -1,0 +1,43 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  slug      String   @unique
+  content   String
+  coverImage String?
+  published Boolean  @default(false)
+  isTop     Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  category  Category? @relation(fields: [categoryId], references: [id])
+  categoryId Int?
+}
+
+model Category {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  posts Post[]
+}
+
+model SiteConfig {
+  id        Int      @id @default(autoincrement())
+  github    String?
+  email     String?
+  title     String   @default("我的博客")
+  description String @default("分享知识与生活")
+  about     String?  @default("这里是关于我的介绍...")
+  adminPasswordSalt String?
+  adminPasswordHash String?
+  updatedAt DateTime @updatedAt
+}
