@@ -14,11 +14,13 @@ export default function PostContent({
   postSlug,
   postTitle,
   commentApiUrl,
+  commentTitle = '评论',
 }: {
   content: string;
   postSlug: string;
   postTitle: string;
   commentApiUrl?: string;
+  commentTitle?: string;
 }) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const commentId = `momo-comment-${postSlug.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
@@ -245,7 +247,7 @@ export default function PostContent({
         {content}
       </ReactMarkdown>
       <section className="mt-12 space-y-4">
-        <h2 className="text-2xl font-semibold text-[var(--heading)]">评论</h2>
+        <h2 className="text-2xl font-semibold text-[var(--heading)]">{commentTitle}</h2>
         <div id={commentId} />
       </section>
     </div>

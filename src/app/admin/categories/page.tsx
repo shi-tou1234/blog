@@ -14,6 +14,28 @@ export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [newCategory, setNewCategory] = useState('');
   const [loading, setLoading] = useState(true);
+  const [lang] = useState<'zh' | 'en'>(() => {
+    if (typeof document === 'undefined') return 'zh';
+    const cookie = document.cookie
+      .split(';')
+      .map((item) => item.trim())
+      .find((item) => item.startsWith('lang='));
+    return cookie?.split('=')[1] === 'en' ? 'en' : 'zh';
+  });
+  const labels = {
+    title: lang === 'en' ? 'Categories' : '分类管理',
+    loading: lang === 'en' ? 'Loading...' : '加载中...',
+    placeholder: lang === 'en' ? 'Enter category name...' : '输入新分类名称...',
+    add: lang === 'en' ? 'Add' : '添加',
+    addSuccess: lang === 'en' ? 'Category added' : '分类已添加',
+    addFail: lang === 'en' ? 'Add failed' : '添加失败',
+    deleteConfirm: lang === 'en'
+      ? 'Delete this category? Posts will become uncategorized.'
+      : '确定要删除吗？该分类下的文章将变为未分类。',
+    deleteSuccess: lang === 'en' ? 'Category deleted' : '分类已删除',
+    deleteFail: lang === 'en' ? 'Delete failed' : '删除失败',
+    empty: lang === 'en' ? 'No categories' : '暂无分类',
+  };
 
   const fetchCategories = () => {
     fetch('/api/categories')
@@ -42,28 +64,28 @@ export default function CategoriesPage() {
       if (res.ok) {
         setNewCategory('');
         fetchCategories();
-        toast.success('分类已添加');
+        toast.success(labels.addSuccess);
       } else {
-        toast.error('添加失败');
+        toast.error(labels.addFail);
       }
     } catch {
-      toast.error('添加失败');
+      toast.error(labels.addFail);
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('确定要删除吗？该分类下的文章将变为未分类。')) return;
+    if (!confirm(labels.deleteConfirm)) return;
 
     try {
       await fetch(`/api/categories/${id}`, { method: 'DELETE' });
       setCategories((prev) => prev.filter((c) => c.id !== id));
-      toast.success('分类已删除');
+      toast.success(labels.deleteSuccess);
     } catch {
-      toast.error('删除失败');
+      toast.error(labels.deleteFail);
     }
   };
 
-  if (loading) return <div className="p-8">加载中...</div>;
+  if (loading) return <div className="p-8">{labels.loading}</div>;
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -71,7 +93,7 @@ export default function CategoriesPage() {
         <Link href="/admin" className="text-gray-500 hover:text-gray-800">
           <ArrowLeft size={24} />
         </Link>
-        <h1 className="text-3xl font-bold text-gray-800">分类管理</h1>
+        <h1 className="text-3xl font-bold text-gray-800">{labels.title}</h1>
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-8">
@@ -80,7 +102,7 @@ export default function CategoriesPage() {
             type="text"
             value={newCategory}
             onChange={(e) => setNewCategory(e.target.value)}
-            placeholder="输入新分类名称..."
+            placeholder={labels.placeholder}
             className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"
           />
           <button
@@ -88,7 +110,7 @@ export default function CategoriesPage() {
             className="bg-stone-800 text-white px-6 py-2 rounded-lg hover:bg-stone-700 transition-colors flex items-center gap-2"
           >
             <Plus size={18} />
-            添加
+            {labels.add}
           </button>
         </form>
       </div>
@@ -107,7 +129,7 @@ export default function CategoriesPage() {
             </li>
           ))}
           {categories.length === 0 && (
-            <li className="px-6 py-8 text-center text-gray-500">暂无分类</li>
+            <li className="px-6 py-8 text-center text-gray-500">{labels.empty}</li>
           )}
         </ul>
       </div>
